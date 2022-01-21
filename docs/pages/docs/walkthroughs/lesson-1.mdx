@@ -47,7 +47,6 @@ Keystone looks for a file named `keystone.ts` (or `keystone.js`) at the project 
 ```js
 
 // keystone.ts
-
 export default {};
 ```
 
@@ -80,7 +79,6 @@ We’ll use [SQLite](/docs/apis/config#sqlite) in this project to keep things si
 
 ```js
 // keystone.ts
-
 import { config } from '@keystone-6/core';
 
 export default config({
@@ -103,7 +101,6 @@ We’re going to build a simple blog with **users** and **posts**. Let’s start
 
 ```js{4,9-16}[5-8]
 // keystone.ts
-
 import { config, list } from '@keystone-6/core';
 import { text } from '@keystone-6/core/fields';
 

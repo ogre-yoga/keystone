@@ -1,13 +1,12 @@
 import { Markdown } from '../../../components/Markdown';
 
-# Lesson 2: Adding the post list
+# Lesson 2: Creating relationships
 
-> In this lesson we will add a second list, and talk about Keystone's relationships
+Learn how to connect two content types to each another and configure how you make those connections in Admin UI.
 
 ## Where we left off
 
-After the last lesson, we had installed keystone, and set up a new project with a basic keystone
-list and database configuration.
+In the [first lesson](/docs/walkthroughs/lesson-1) we got our Keystone blog project up and running with a database and `user` list:
 
 ```js
 // keystone.ts
@@ -30,16 +29,14 @@ export default config({
 });
 ```
 
-## In this lesson
+We’re now going to help those users make `posts` with a title, some publishing fields, and the 'content'.
 
-In this lesson, we are going to help users make `posts`. For posts, users need to be
-able to have posts, which have a title, publishing info, and the 'content'.
+## Make a Lists object
 
-## Adding a second list
+Before we define fields for a `post` type, let's pull lists out into its own object so it's easier to reason about going forward:
 
-First, let's pull lists out into its own object:
-
-```js{4-11,18}
+```js{5-12,19}
+// keystone.ts
 import { list, config } from '@keystone-6/core';
 import { text } from '@keystone-6/core/fields';
 
@@ -61,13 +58,15 @@ export default config({
 });
 ```
 
-You may find it handy at this point to move lists into its own file, and import it, but for now we will leave it here.
+!> Protip: you could also move lists into its own file, and import it into `keystone.ts`
 
-The next thing we want to do is add a second list.
-To do this, we need to add a second key to our lists object, which we are going to title `Post`, and then provide it at least one field.
-We are going to start by adding the `title` field, and a `content` field both as `text`.
+## Create a Post list
 
-```js{10-15}[4-9]
+To create a post type we add a second `Post` key to the lists object. Let’s add `text` field types for the post’s `title` and `content`:
+
+```js{11-16}[2-4,19-26]
+//keystone.js
+import { list, config } from '@keystone-6/core';
 import { text } from '@keystone-6/core/fields';
 
 const lists = {
@@ -81,12 +80,21 @@ const lists = {
     fields: {
       title: text(),
       content: text(),
+      // content field later on
     },
   }),
 };
+
+export default config({
+  db: {
+    provider: 'sqlite',
+    url: 'file:./keystone.db',
+  },
+  lists,
+});
 ```
 
-Let's check that this works. Boot up our keystone app and have a look.
+Let's check that this works. Boot up our keystone app and have a look:
 
 ## Connecting users with posts
 
