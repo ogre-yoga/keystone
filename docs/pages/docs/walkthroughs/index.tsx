@@ -34,7 +34,11 @@ export function Learn() {
           margin: 'var(--space-xlarge) 0 0 0',
         })}
       >
-        <Well grad="grad2" heading="Lesson 1: Hello world " href="/docs/walkthroughs/lesson-1">
+        <Well
+          grad="grad2"
+          heading="Lesson 1: Installing Keystone "
+          href="/docs/walkthroughs/lesson-1"
+        >
           Get Keystone up and running with your first content type
         </Well>
         <Well grad="grad2" heading="Lesson 2: Relating things" href="/docs/walkthroughs/lesson-2">
