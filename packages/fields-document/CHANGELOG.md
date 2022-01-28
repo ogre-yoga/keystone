@@ -1,5 +1,16 @@
 # @keystone-6/fields-document
 
+## 1.0.2
+
+### Patch Changes
+
+- [#7202](https://github.com/keystonejs/keystone/pull/7202) [`29c6a45fd`](https://github.com/keystonejs/keystone/commit/29c6a45fd5fef8ea27f5d051b4fb5d660492aad5) Thanks [@Noviny](https://github.com/Noviny)! - Fixes a bug where headings would appear in shortcut menu even when they were disabled
+
+* [#7202](https://github.com/keystonejs/keystone/pull/7202) [`29c6a45fd`](https://github.com/keystonejs/keystone/commit/29c6a45fd5fef8ea27f5d051b4fb5d660492aad5) Thanks [@Noviny](https://github.com/Noviny)! - Fixes a bug where the shortcuts menu would clip behind the styles menu - it is now always above the styles menu
+
+* Updated dependencies [[`4f3d0a073`](https://github.com/keystonejs/keystone/commit/4f3d0a073dba50f22505af545402a2f1e38afe0d), [`6cea02475`](https://github.com/keystonejs/keystone/commit/6cea02475b02528e5f04f0a5bca641367ca1584d)]:
+  - @keystone-6/core@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
