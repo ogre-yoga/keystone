@@ -1,4 +1,7 @@
 import { Markdown } from '../../../components/Markdown';
+import { Well } from '../../../components/primitives/Well';
+import { RelatedContent } from '../../../components/RelatedContent';
+import { InlineCode } from '../../../components/primitives/Code';
 
 # Lesson 2: Creating relationships
 
@@ -29,7 +32,7 @@ export default config({
 });
 ```
 
-We’re now going to help those users make `posts` with a title, some publishing fields, and the 'content'.
+We’re now going to create a post list type, and connect it to users with relationship fields.
 
 ## Make a Lists object
 
@@ -58,13 +61,13 @@ export default config({
 });
 ```
 
-!> Protip: you could also move lists into its own file, and import it into `keystone.ts`
+!> **Protip**: you could also move lists into its own file, and import it into `keystone.ts`
 
 ## Create a Post list
 
-To create a post type we add a second `Post` key to the lists object. Let’s add `text` field types for the post’s `title` and `content`:
+To create a post type we add a second `Post` key to the lists object. Let’s add another `text` field for the post’s `title` to begin with:
 
-```js{11-16}[2-4,19-26]
+```js{12-16}[2-4,19-26]
 //keystone.js
 import { list, config } from '@keystone-6/core';
 import { text } from '@keystone-6/core/fields';
@@ -79,8 +82,6 @@ const lists = {
   Post: list({
     fields: {
       title: text(),
-      content: text(),
-      // content field later on
     },
   }),
 };
@@ -94,20 +95,22 @@ export default config({
 });
 ```
 
-Let's check that this works. Boot up our keystone app and have a look:
+Let's check that this works. Boot up our Keystone app and have a look:
 
-## Connecting users with posts
+![Admin UI showing create screen for a blog post](/assets/walkthroughs/lesson-2/my-first-post.png)
 
-The important thing we need to model next with our list is a relationship between a user and posts. For deciding on how they relate we should ask:
+## Connect Users with Posts
 
-"Does a user have many posts?"
-"Does a post have many authors?"
+Now that we have two lists, let's make a relationship between them. When deciding how to relate lists it's helpful to consider:
 
-For this case, we are saying a post only has one author, but a user has many posts.
+- Should a user be able to create **one** or **many** posts?
+- Should a post be attributable to **one** or **many** users?
 
-To define this relationship, we will add a field to each list that defines how they relate to each other:
+Let’s say that a post can be associated with only one user, but a user can have many posts. To create this relationship, we will add a [relationship](/docs/guides/relationships) field to each list that defines their connection to one another:
 
-```js{8,15}[6-7,13-14]
+```js{10,16}[2,8-9,14-15,21-30]
+//keystone.ts
+import { list, config } from '@keystone-6/core';
 import { text, relationship } from '@keystone-6/core/fields';
 
 const lists = {
@@ -121,36 +124,39 @@ const lists = {
   Post: list({
     fields: {
       title: text(),
-      content: text(),
       author: relationship({ ref: 'User.posts' }),
+      // We’re using author as a more user friendly field name
     },
   }),
 };
+
+export default config({
+  db: {
+    provider: 'sqlite',
+    url: 'file:./keystone.db',
+  },
+  lists,
+});
 ```
 
-The relationship references the name for the `field` of the list it is relating to to make it a two-way connection, so the
-`author` field relates to `User.posts`, while the `posts` field relates to `User.author`. Naming these relationships can be
-important if lists have multiple relationships. If, for example, we wanted to let users also 'like' posts, we could add a
-second differently named relationship between `User` and `Post`
+The `relationship` references the name for the `field` of the list it is relating to make it [two-sided](/docs/guides/relationships#two-sided), so the
+`author` field relates to `User.posts`, while the `posts` field relates to `User.author`.
 
-## Looking at the admin UI
+!> Naming relationships can be important if lists have multiple relationships. If, for example, we wanted to let users also 'like' posts, we could add a second differently named relationship field between `User` and `Post` called 'likes'.
 
-Quickly, let's open the Admin UI and create a post.
+Let's open the Admin UI and create a post:
 
-This experience is a bit rough. The `text()` field for the post's content is a very bad editing experience. Additionally, while the authors's
-name is shown in the post, we want to make editing the author from a post easier.
-Thankfully, keystone allows you to define how the admin UI presents this information.
+![Admin UI showing creation of a nerw post, and relationship to a user from the post ](/assets/walkthroughs/lesson-2/my-first-relationship.gif)
 
-## Improving the Admin UI Experience
+## Configure a field’s appearance
 
-The main way to tweak the admin UI for this is in the `ui` options for a `field`. All field types have a `ui` option that you can explore, but
-for this we want to focus on a few simple improvements.
+In our current schema, the `author` field provides a `select` input to connect a user to the post. This is the default `displaymode` for this field type.
 
-### Using a text area for the content
+In Keystone it's possible to change that display to suit your needs. This is achieved with a field's `ui` option. Each field comes with different `ui` options that you can explore. for the `author` field we’ll make a few changes to improve the editing experience for Admin UI users:
 
-In a field, there are `ui` options that can be provided. Here, we can change the `displayMode` for text to be `textarea`.
-
-```js{14}[4-10]
+```js{18-24}[2-12,28-35]
+//keystone.ts
+import { list, config } from '@keystone-6/core';
 import { text, relationship } from '@keystone-6/core/fields';
 
 const lists = {
@@ -164,32 +170,6 @@ const lists = {
   Post: list({
     fields: {
       title: text(),
-      content: text({ ui: { displayMode: 'textarea'}}),
-      author: relationship({ ref: 'User.posts' }),
-    },
-  }),
-};
-```
-
-### Improving the display of the User relationship in Posts
-
-The next thing to do is improve the inline experience for authors in posts.
-
-```js{17-23}[4-10]
-import { text, relationship } from '@keystone-6/core/fields';
-
-const lists = {
-  User: list({
-    fields: {
-      name: text({ isRequired: true }),
-      email: text({ isRequired: true }),
-      posts: relationship({ ref: 'Post.author', many: true }),
-    },
-  }),
-  Post: list({
-    fields: {
-      title: text(),
-      content: text({ ui: { displayMode: 'textarea'}}),
       author: relationship({
         ref: 'User.posts',
         ui: {
@@ -203,18 +183,31 @@ const lists = {
     },
   }),
 };
+export default config({
+  db: {
+    provider: 'sqlite',
+    url: 'file:./keystone.db',
+  },
+  lists,
+});
 ```
 
-We've made a few changes here, so let's break them down. The first is the relationship is shown as a `card` isntead of just a name,
-and we've made sure that the card links to the user item.
+We've made a few changes here, so let's break them down:
 
-The second is we have made the user attributes of name and email editable inline.
+- The `displayMode` of the relationship is shown as `cards`
+- We've made sure that the card links to fields in the `user` list with `linkToItem`
+- We made the user attributes of `name` and `email` editable inline with `inlineEdit`
 
-## What We Have Now
+With a dash of extra config we’ve created a very different editing experience where user data can be altered directly in the post form:
 
-At the end of this lesson, our app has a new `post` list, which has info for its title and content, as well as a link to the author, and a time stamp for when it will be published. It config file looks like:
+![Admin UI showing create screen for a blog post](/assets/walkthroughs/lesson-2/relationship-edit-cards-display.gif)
+
+## What we have now
+
+Our app has a new `post` list with a title and a link to `users` via the `author` field that you can edit inline with the `cards` UI display mode. Admin UI editors can also create posts from the `user` form with a two-way relationship.
 
 ```js
+// keystone.ts
 import { list, config } from '@keystone-6/core';
 import { text, timestamp, relationship } from '@keystone-6/core/fields';
 
@@ -229,7 +222,6 @@ const lists = {
   Post: list({
     fields: {
       title: text(),
-      content: text({ ui: { displayMode: 'textarea'}}),
       author: relationship({
         ref: 'User.posts',
         ui: {
@@ -252,5 +244,19 @@ export default config({
   lists,
 });
 ```
+
+Next up, we’ll add publishing workflows to our app using the `select` and `timestamp` fields.
+
+## Next lesson
+
+<RelatedContent>
+  <Well
+    heading="Lesson 3: Publishing workflows"
+    href="/docs/walkthroughs/lesson-3"
+    >
+    Support publishing needs with Keystone's <InlineCode>select</InlineCode> and{' '}
+    <InlineCode>timestamp</InlineCode> fields
+  </Well>
+</RelatedContent>
 
 export default ({ children }) => <Markdown description="Learn how to get your first Keystone project up and running using the `create-keystone-app` Command Line Interface.">{children}</Markdown>
